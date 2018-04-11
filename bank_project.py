@@ -4,95 +4,104 @@ import mysql.connector
 import sys
 import getpass # for password inputs
 
-    
+config = {
+  'user': 'root',
+  'password': '1234',
+  'host': '127.0.0.1',
+  'database': 'ccptime',
+}
+cnx = mysql.connector.connect(**config)
+if cnx.is_connected():
+        print('Connected to MySQL database')
+else:
+        print('connection failed.')
 
 def new_user_detail():
     
-    name = input("Enter your name ").strip()
+    name = raw_input("Enter your name ").strip()
 
-    customer_ID = input("Enter a alpha-numeric customer ID")
-    # check for it's uniqueness in the database
-    
-    number = input("Enter your number ").strip()
-    address = input("Enter your Address").strip()
-    email = input("Enter your Email").strip()
-    type = input("Type of account you want? ")
+    #number = input("Enter your number ").strip()
+    address = raw_input("Enter your Address").strip()
+    #email = input("Enter your Email").strip()
+    type = input("Type of account you want? 1. Savings Account 2. Current Account")
     account_number = input("choose your account_number")
-
-
+    cursor = cnx.cursor()
     while True:
-        password = input("Enter a password").strip()
-        re_pass = input("Re-Enter your password").strip()
+        password = raw_input("Enter a password").strip()
+        re_pass = raw_input("Re-Enter your password").strip()
         if password == re_pass:
-            break:
+            cursor.execute('insert into custmr (f_name, addr,  pass, bal, acc_type, acc_no) values("%s", "%s", "%s", "%s", "%s", "%s")',(name, address, password, 0.0, type, account_number))
+            cnx.commit()
+            break
         else:
             print("ERROR! password doesn't match")
     # you can have extra detail over here
-
-
-    # Add these details to the database. The code for DB connection goes here
-    # you can also add other validation checks over here
+    cursor.close()
+    return
 
 
 def existing_user():
     #ask for customer id and password for validation check
-
-    c_id = input("Enter your customer ID - ")
-    c_pass = input("Enter Your password")
-
-    exist = False
+    c_name = raw_input("Enter your name - ")
+    c_pass = raw_input("Enter Your password")
+    cursor = cnx.cursor()
+    query = ("SELECT pass FROM custmr WHERE f_name='%s'")
+    cursor.execute(query, c_name)
+    res = cursor.fetchone()
+    print(res)
+    #if(c_pass == res[0]):
+    exist = True
     #check if the user exist and update the variable value
-
     if exist:
-        
-        #Fetch name and other prompt details
-        while True:
-            name = 'xyz'
-            print("Hello,{}. Welcome to RUSS bank"):
-            print("You have the following options")
-            print("1. Change Address")
-            print("2. Money Deposit")
-            print("3. Money Withdrawl")
-            print("4. Print statement")
-            print("5. Transfer money")
-            print("6. Account Closure")
-            print('7.Logout')
-            choice = int(input("Enter Your choice -- ").strip())
-            
+            #Fetch name and other prompt details
+            while True:
+                    name = 'xyz'
+                    print("Hello,{}. Welcome to RUSS bank")
+                    print("You have the following options")
+                    print("1. Change Address")
+                    print("2. Money Deposit")
+                    print("3. Money Withdrawl")
+                    print("4. Print statement")
+                    print("5. Transfer money")
+                    print("6. Account Closure")
+                    print('7.Logout')
+                    choice = int(input("Enter Your choice -- ").strip())
             if choice == 1:
-                # code for address change of the same user
-
-                pass
+                    new_addr=raw_input("Enter new Address: ")
+                    cursor=cnx.cursor()
+                    query = ("UPDATE custmr SET addr = '%s' WHERE cust_id = %s;")
+                    cursor.execute(query,(new_addr,c_id))
+                    # code for address change of the same user
+                    cnx.commit()
+                    pass
             elif choice ==2:
-                # code to Deposit money of the same user
-                pass
+                    # code to Deposit money of the same user
+                    cnx.commit()
+                    pass
             elif choice ==3:
-                # Code to Withdrawl money of the same user
-                pass
+                    # Code to Withdrawl money of the same user
+                    cnx.commit()
+                    pass
             elif choice ==4:
-                # print statement of the user from start time to end time
-                start = input("enter the start date in dd-mm-yyyy format - ")
-                end = input("enter the end date in dd-mm-yyyy format - ")
-
-                #between clause
-                pass
+                    # print statement of the user from start time to end time
+                    start = input("enter the start date in dd-mm-yyyy format - ")
+                    end = input("enter the end date in dd-mm-yyyy format - ")
+                                     #between clause
+                    pass
             elif choice ==5:
-                # transfer money to another account
-                account_holder_id = input("Enter the account number on which you have to tranfer the money")
-                pass    
+                    # transfer money to another account
+                    account_holder_id = input("Enter the account number on which you have to tranfer the money")
+                    pass
             elif choice ==6:
-                
-                # delete account
-                c = input("Are you sure you wanna delete your account.Yes or no")
-                pass
-
+                                     # delete account
+                    c = input("Are you sure you wanna delete your account.Yes or no")
+                    pass
             elif choice ==7:
-                print('Thank You for your time')
-                return
-
+                    print('Thank You for your time')
+            return
     else:
         print("Invalid credentials")
-        return
+    return
 
 def admin_interface():
     admin_id = input("enter your admin ID")
@@ -113,11 +122,7 @@ def admin_interface():
             # print closed account details
         elif c==2:
             print('logging out')
-            return
-
-
-
-
+	return
 
 
 while True:
@@ -138,6 +143,7 @@ while True:
         admin_interface()
     elif choice == 4:
         print("Thank you for your time")
+		#cnx.close()
         sys.exit(0)
     else:
         print("Wrong Choice. Do it again")
