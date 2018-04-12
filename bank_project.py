@@ -30,7 +30,7 @@ def new_user_detail():
         password = raw_input("Enter a password").strip()
         re_pass = raw_input("Re-Enter your password").strip()
         if password == re_pass:
-            cursor.execute('insert into custmr (f_name, addr,  pass, bal, acc_type, acc_no) values("%s", "%s", "%s", "%s", "%s", "%s")',(name, address, password, 0.0, type, account_number))
+            cursor.execute('insert into custmr (f_name, addr,  pass, bal, acc_type, acc_no, c_limit) values("%s", "%s", "%s", "%s", "%s", "%s", "%s")',(name, address, password, 0.0, type, account_number, 0))
             cnx.commit()
             break
         else:
@@ -56,7 +56,7 @@ def existing_user():
             #Fetch name and other prompt details
             while True:
                     name = 'xyz'
-                    print("Hello,{}. Welcome to RUSS bank")
+                    print("Hello, '%s'. Welcome to RUSS bank", name)
                     print("You have the following options")
                     print("1. Change Address")
                     print("2. Money Deposit")
